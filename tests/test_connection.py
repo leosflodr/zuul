@@ -49,6 +49,17 @@ class TestSQLConnection(testtools.TestCase):
             zuul.connection.sql.SQLConnection.driver_name
         )
 
+class TestGitHubConnection(testtools.TestCase):
+    log = logging.getLogger("zuul.test_connection")
+
+    def test_driver_name(self):
+        self.assertEqual('github',
+                         zuul.connection.github.GithubConnection.driver_name)
+
+
+class TestConnections(ZuulTestCase):
+    def setup_config(self, config_file='zuul-connections-same-gerrit.conf'):
+        super(TestConnections, self).setup_config(config_file)
 
 class TestConnections(ZuulDBTestCase):
     def test_multiple_gerrit_connections(self):

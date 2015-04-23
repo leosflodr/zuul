@@ -16,6 +16,7 @@ import logging
 import re
 
 import zuul.connection.gerrit
+import zuul.connection.github
 import zuul.connection.smtp
 import zuul.connection.sql
 
@@ -46,6 +47,9 @@ def configure_connections(config):
             connections[con_name] = \
                 zuul.connection.gerrit.GerritConnection(con_name,
                                                         con_config)
+        elif con_driver == 'github':
+            connections[con_name] = \
+                zuul.connection.github.GithubConnection(con_name, con_config)
         elif con_driver == 'smtp':
             connections[con_name] = \
                 zuul.connection.smtp.SMTPConnection(con_name, con_config)

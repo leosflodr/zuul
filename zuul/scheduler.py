@@ -321,6 +321,7 @@ class Scheduler(threading.Thread):
         # is useful for not doing a full load during layout validation.
         self.connections = connections
         for connection_name, connection in self.connections.items():
+            logging.debug("Connection: {0}".format(connection_name))
             connection.registerScheduler(self)
             connection.registerWebapp(webapp)
             if load:
@@ -351,9 +352,11 @@ class Scheduler(threading.Thread):
         drivers = {
             'source': {
                 'gerrit': 'zuul.source.gerrit:GerritSource',
+                'github': 'zuul.source.github:GithubSource',
             },
             'trigger': {
                 'gerrit': 'zuul.trigger.gerrit:GerritTrigger',
+                'github': 'zuul.trigger.github:GithubTrigger',
                 'timer': 'zuul.trigger.timer:TimerTrigger',
                 'zuul': 'zuul.trigger.zuultrigger:ZuulTrigger',
             },
