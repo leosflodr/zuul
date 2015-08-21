@@ -89,7 +89,7 @@ class Server(zuul.cmd.ZuulApp):
         self.sched = zuul.scheduler.Scheduler(self.config,
                                               testonly=True)
         self.configure_connections()
-        self.sched.registerConnections(self.connections, load=False)
+        self.sched.registerConnections(self.connections, None, load=False)
         layout = self.sched.testConfig(self.config.get('zuul',
                                                        'layout_config'),
                                        self.connections)
@@ -195,7 +195,7 @@ class Server(zuul.cmd.ZuulApp):
 
         self.log.info('Starting scheduler')
         self.sched.start()
-        self.sched.registerConnections(self.connections)
+        self.sched.registerConnections(self.connections, webapp)
         self.sched.reconfigure(self.config)
         self.sched.resume()
         self.log.info('Starting Webapp')
