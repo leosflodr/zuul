@@ -516,6 +516,7 @@ class FakeGithubPullRequest(object):
         self.updated_at = None
         self.head_sha = None
         self.is_merged = False
+        self.merge_message = None
         self._createPRRef()
         self._addCommitToRepo()
         self._updateTimeStamp()
@@ -560,6 +561,9 @@ class FakeGithubPullRequest(object):
             },
             'repository': {
                 'full_name': self.project
+            },
+            'sender': {
+                'login': 'ghuser'
             }
         }
         return (name, data)
@@ -582,6 +586,7 @@ class FakeGithubPullRequest(object):
             'action': action,
             'pull_request': {
                 'number': self.number,
+                'title': self.subject,
                 'updated_at': self.updated_at,
                 'base': {
                     'ref': self.branch,
@@ -595,6 +600,9 @@ class FakeGithubPullRequest(object):
             },
             'label': {
                 'name': label
+            },
+            'sender': {
+                'login': 'ghuser'
             }
         }
         return (name, data)
@@ -661,6 +669,7 @@ class FakeGithubPullRequest(object):
             'number': self.number,
             'pull_request': {
                 'number': self.number,
+                'title': self.subject,
                 'updated_at': self.updated_at,
                 'base': {
                     'ref': self.branch,
@@ -671,6 +680,9 @@ class FakeGithubPullRequest(object):
                 'head': {
                     'sha': self.head_sha
                 }
+            },
+            'sender': {
+                'login': 'ghuser'
             }
         }
         return (name, data)
@@ -742,6 +754,7 @@ class FakeGithubConnection(zuul.connection.github.GithubConnection):
         pr = self.pull_requests[number - 1]
         data = {
             'number': number,
+            'title': pr.subject,
             'updated_at': pr.updated_at,
             'base': {
                 'repo': {
@@ -755,6 +768,14 @@ class FakeGithubConnection(zuul.connection.github.GithubConnection):
         }
         return data
 
+    def getUser(self, login):
+        data = {
+            'username': login,
+            'name': 'Github User',
+            'email': 'github.user@example.com'
+        }
+        return data
+
     def getGitUrl(self, project):
         return os.path.join(self.upstream_root, str(project))
 
@@ -765,7 +786,8 @@ class FakeGithubConnection(zuul.connection.github.GithubConnection):
         pull_request = self.pull_requests[pr_number - 1]
         pull_request.addComment(message)
 
-    def mergePull(self, owner, project, pr_number, sha=None):
+    def mergePull(self, owner, project, pr_number, commit_message='',
+                  sha=None):
         pull_request = self.pull_requests[pr_number - 1]
         if self.merge_failure:
             raise Exception('Pull request was not merged')
@@ -774,6 +796,7 @@ class FakeGithubConnection(zuul.connection.github.GithubConnection):
             raise MergeFailure('Merge was not successful due to mergeability'
                                ' conflict')
         pull_request.is_merged = True
+        pull_request.merge_message = commit_message
 
     def setCommitStatus(self, owner, project, sha, state,
                         url='', description='', context=''):
